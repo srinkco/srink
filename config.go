@@ -8,22 +8,26 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/anonyindian/url-shortener/utils/randomiser"
 	"gopkg.in/yaml.v3"
 )
 
-const DEFAULT_PORT = 7837
+const (
+	DEFAULT_PORT    = 7837
+	DEFAULT_API_URL = "https://srink.co"
+)
 
 type config struct {
 	confPath string
 	mu       sync.RWMutex
 	data     map[string]any
+	log      *log.Logger
 }
 
-func newConfig(confPath string) *config {
+func newConfig(confPath string, l *log.Logger) *config {
 	return &config{
 		confPath: confPath,
 		data:     make(map[string]any),
+		log:      l,
 	}
 }
 
@@ -125,7 +129,7 @@ func (c *config) init(in []byte) error {
 func (c *config) build() []byte {
 	buf, err := yaml.Marshal(c.data)
 	if err != nil {
-		log.Fatalln("Failed to build config:", err)
+		c.log.Fatalln("Failed to build config:", err)
 	}
 	return buf
 }
@@ -135,7 +139,7 @@ func (c *config) write() {
 		c.confPath, c.build(), os.ModePerm,
 	)
 	if err != nil {
-		log.Fatalln("Failed to write config:", err)
+		c.log.Fatalln("Failed to write config:", err)
 	}
 }
 
@@ -167,11 +171,11 @@ func checkConfigDir(userConfDir string) {
 	}
 }
 
-func readUserConfig(name string) *config {
+func readUserConfig(name string, l *log.Logger) *config {
 	userConfDir := getUserConfigDir()
 	checkConfigDir(userConfDir)
 	fPath := getPath(userConfDir, "srink", name)
-	conf := newConfig(fPath)
+	conf := newConfig(fPath, l)
 	buf, err := os.ReadFile(fPath)
 	if err != nil {
 		log.Println("Failed to read conf file:", err)
@@ -186,13 +190,5 @@ func readUserConfig(name string) *config {
 	if err != nil {
 		log.Fatalln("Failed to initialise config:", err)
 	}
-	return conf
-}
-
-func readServerConfig(port int64) *config {
-	conf := readUserConfig("server-conf.yml")
-	conf.tryAdd("token", randomiser.GetString(16))
-	conf.tryAdd("port", port)
-	conf.write()
 	return conf
 }

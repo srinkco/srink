@@ -9,7 +9,7 @@ import (
 
 type Response struct {
 	Ok           bool   `json:"ok"`
-	Error        string `json:"error,omitempty"`
+	Description  string `json:"error,omitempty"`
 	ShortenedUrl string `json:"shortened_url,omitempty"`
 	ctx          *fasthttp.RequestCtx
 }
@@ -31,7 +31,7 @@ func (r *Response) SendSuccess(surl string) {
 func (r *Response) SendError(status int, err error) {
 	r.ctx.SetStatusCode(status)
 	r.Ok = false
-	r.Error = err.Error()
+	r.Description = err.Error()
 	r.ctx.SetBody(r.marshal())
 }
 
@@ -46,4 +46,10 @@ func (r *Response) SendUnauthorized(err error) {
 func (r *Response) marshal() []byte {
 	buf, _ := json.Marshal(r)
 	return buf
+}
+
+func UnmarshalResponse(data []byte) *Response {
+	var r Response
+	_ = json.Unmarshal(data, &r)
+	return &r
 }
