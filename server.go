@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"strings"
 
@@ -19,11 +19,13 @@ import (
 )
 
 type server struct {
-	auth   string
-	conf   *config
-	dp     *httputils.Dispatcher
-	engine shortener.Engine
-	log    *log.Logger
+	auth            string
+	conf            *config
+	dp              *httputils.Dispatcher
+	engine          shortener.Engine
+	log             *log.Logger
+	fallback        bool
+	cssBuf, htmlBuf []byte
 }
 
 func newServer(l *log.Logger) *server {
@@ -52,8 +54,13 @@ func (s *server) start() {
 	s.log.Println("Your auth token is:", s.auth)
 	fmt.Println("----------------------------------")
 
+	s.log.Println("Fetching frontend for the index page...")
+	s.initHTML("frontend/index.html")
+	s.initCSS("frontend/tailwind.css")
+
 	s.dp.HandleFunc("/api/new", s.createUrl, true)
 	s.dp.HandleFunc("/", s.mainPage, true)
+	s.dp.HandleFunc("/tailwind.css", s.serverCSS, true)
 
 	port := s.conf.getString("port")
 	s.log.Println("Local network IPv4:", s.getLocalIPAddr())
@@ -70,9 +77,13 @@ func (s *server) readConfig(port int64) {
 }
 
 func (s *server) mainPage(ctx *fasthttp.RequestCtx) {
-	ctx.SetStatusCode(http.StatusOK)
+	ctx.SetStatusCode(fasthttp.StatusOK)
 	ctx.SetContentType("text/html")
-	ctx.SetBodyString(templates.MAIN_HTML)
+	if s.fallback {
+		ctx.SetBodyString(templates.MAIN_HTML)
+		return
+	}
+	ctx.SetBody(s.htmlBuf)
 }
 
 func (s *server) worker(ctx *fasthttp.RequestCtx) {
@@ -81,7 +92,7 @@ func (s *server) worker(ctx *fasthttp.RequestCtx) {
 	if _url == "" {
 		_url = "/"
 	}
-	ctx.Redirect(_url, http.StatusPermanentRedirect)
+	ctx.Redirect(_url, fasthttp.StatusPermanentRedirect)
 }
 
 func (s *server) createUrl(ctx *fasthttp.RequestCtx) {
@@ -135,4 +146,38 @@ func (s *server) getLocalIPAddr() net.IP {
 		}
 	}
 	return net.IPv4(0, 0, 0, 0)
+}
+
+func (s *server) initCSS(name string) {
+	buf, err := os.ReadFile(name)
+	if err != nil {
+		s.log.Println("Failed to open CSS file:", err)
+		s.fallback = true
+		s.log.Println("Switched to fallback mode...")
+		return
+	}
+	s.cssBuf = buf
+}
+
+func (s *server) initHTML(name string) {
+	buf, err := os.ReadFile(name)
+	if err != nil {
+		s.log.Println("Failed to open HTML file:", err)
+		s.fallback = true
+		s.log.Println("Switched to fallback mode...")
+		return
+	}
+	s.htmlBuf = buf
+}
+
+func (s *server) serverCSS(ctx *fasthttp.RequestCtx) {
+	ctx.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetContentType("text/css")
+	ctx.SetBody(s.cssBuf)
+}
+
+func (s *server) passCORS(header *fasthttp.ResponseHeader) {
+	header.Set("Access-Control-Allow-Origin", "*")
+	header.Set("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, Content-Type, X-Requested-With")
+	header.Set("Access-Control-Allow-Methods", "GET, PUT, POST")
 }
