@@ -11,4 +11,4 @@ RUN git clone https://github.com/srinkco/website
 FROM alpine:3.18
 COPY --from=builder /app/out/srink /app/srink
 COPY --from=builder /app/website /app/frontend
-CMD ["/app/srink"]
+CMD ["/app/srink", "server"]
