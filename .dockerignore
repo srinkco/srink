@@ -1,0 +1,6 @@
+**
+!utils
+!frontend
+!*.go
+!go.mod
+!go.sum
