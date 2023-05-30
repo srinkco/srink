@@ -9,12 +9,12 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/anonyindian/url-shortener/utils/apierrors"
-	apiutil "github.com/anonyindian/url-shortener/utils/apiutils"
-	"github.com/anonyindian/url-shortener/utils/httputils"
-	"github.com/anonyindian/url-shortener/utils/randomiser"
-	"github.com/anonyindian/url-shortener/utils/shortener"
-	"github.com/anonyindian/url-shortener/utils/templates"
+	"github.com/srinkco/srink/utils/apierrors"
+	apiutil "github.com/srinkco/srink/utils/apiutils"
+	"github.com/srinkco/srink/utils/httputils"
+	"github.com/srinkco/srink/utils/randomiser"
+	"github.com/srinkco/srink/utils/shortener"
+	"github.com/srinkco/srink/utils/templates"
 	fasthttp "github.com/valyala/fasthttp"
 )
 

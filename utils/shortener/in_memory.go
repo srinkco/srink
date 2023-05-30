@@ -3,7 +3,7 @@ package shortener
 import (
 	"sync"
 
-	"github.com/anonyindian/url-shortener/utils/randomiser"
+	"github.com/srinkco/srink/utils/randomiser"
 )
 
 const HASH_NUM = 3

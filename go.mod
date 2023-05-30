@@ -1,4 +1,4 @@
-module github.com/anonyindian/url-shortener
+module github.com/srinkco/srink
 
 go 1.20
 

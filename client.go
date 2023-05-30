@@ -4,8 +4,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/anonyindian/url-shortener/utils/apierrors"
-	apiutil "github.com/anonyindian/url-shortener/utils/apiutils"
+	"github.com/srinkco/srink/utils/apierrors"
+	apiutil "github.com/srinkco/srink/utils/apiutils"
 	"github.com/valyala/fasthttp"
 )
 
