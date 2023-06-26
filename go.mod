@@ -3,7 +3,7 @@ module github.com/srinkco/srink
 go 1.20
 
 require (
-	github.com/valyala/fasthttp v1.47.0
+	github.com/valyala/fasthttp v1.48.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
