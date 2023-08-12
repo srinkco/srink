@@ -43,7 +43,7 @@ func (s *server) start() {
 	s.log.Println("Settings:", s.conf.data)
 
 	s.log.Println("Creating new shortener engine")
-	s.engine = shortener.NewEngine(shortener.EngineTypeInMemory)
+	s.engine = shortener.NewEngine(shortener.EngineTypeInSQL)
 
 	s.dp = httputils.NewDispatcher(&httputils.DispatcherOpts{
 		NotFoundHandler: s.worker,
@@ -83,6 +83,7 @@ func (s *server) mainPage(ctx *fasthttp.RequestCtx) {
 		ctx.SetBodyString(templates.MAIN_HTML)
 		return
 	}
+	s.passCORS(&ctx.Response.Header)
 	ctx.SetBody(s.htmlBuf)
 }
 
@@ -123,9 +124,9 @@ func (s *server) createUrl(ctx *fasthttp.RequestCtx) {
 	}
 	hash = s.engine.Shorten(_url, hash)
 	surl := strings.Join([]string{string(ctx.Host()), hash}, "/")
+	s.passCORS(&ctx.Response.Header)
 	resp.SendSuccess(surl)
 	s.log.Println("Created new shorturl from url (", _url, ") to", "surl (", surl, ")")
-	return
 }
 
 func (s *server) printGeneralDetails() {

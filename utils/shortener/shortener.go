@@ -15,6 +15,8 @@ const (
 
 func NewEngine(eType EngineType) Engine {
 	switch eType {
+	case EngineTypeInSQL:
+		return newInSQLEngine(DEF_SQLITE_FILE_NAME)
 	default:
 		return &InMemoryEngine{
 			hashToUrl: make(map[string]string),
