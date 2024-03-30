@@ -1,0 +1,14 @@
+[Unit]
+Description=Srink Server
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/srink.co/srink/
+ExecStart=/home/srink.co/srink/srink server
+ExecReload=/bin/kill -s HUP $MAINPID
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
