@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/AnimeKaizoku/cacher"
+	"github.com/glebarez/sqlite"
 	"github.com/srinkco/srink/utils/randomiser"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
