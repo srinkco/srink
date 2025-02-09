@@ -13,7 +13,7 @@ import (
 
 const (
 	DEFAULT_PORT    = 7837
-	DEFAULT_API_URL = "https://srink.co"
+	DEFAULT_API_URL = "https://s.udk.me"
 )
 
 type config struct {
